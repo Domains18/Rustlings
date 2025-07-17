@@ -18,6 +18,10 @@ impl Task {
     fn update_task(&mut self, new_name: String) {
         self.task = new_name;
     }
+
+    // pub fn id(&self) -> u64 {self.id}
+    // pub fn name(&self) -> &str {&self.task}
+    // pub fn done(&self) -> bool {self.done_status}
 }
 
 static UNIQUE_ID: AtomicU64 = AtomicU64::new(1);
@@ -63,8 +67,15 @@ fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str> 
 
 fn display_help() {
     let help: &str = "
-        to add help here
-    ";
+Available commands:
+  add <task>         - Add a new task
+  show               - List all tasks
+  done <id>          - Mark task as done
+  update <id> <name> - Update task description
+  delete <id>        - Remove task
+  help               - Show this help message
+  exit               - Quit the program
+";
 
     println!("{}", help)
 }
@@ -144,7 +155,6 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>) {
     }
 }
 
-
-pub fn run(args: Vec<&str>, todo: &mut Vec<Task>){
+pub fn run(args: Vec<&str>, todo: &mut Vec<Task>) {
     parse_arguments(args, todo);
 }
