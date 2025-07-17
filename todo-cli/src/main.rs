@@ -1,5 +1,5 @@
-extern crate todo_list;
-use todo_list::Task;
+extern crate todo_cli;
+use todo_cli::Task;
 
 
 use std::io::stdin;
@@ -19,7 +19,7 @@ fn runprompt(todo: &mut Vec<Task>){
 
         let args: Vec<&str> = buffer.split_whitespace().collect();
 
-        todo_list::run(args, todo);
+        todo_cli::run(args, todo);
     }
 }
 
