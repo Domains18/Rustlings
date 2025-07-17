@@ -1,6 +1,5 @@
-use core::task;
 use std::{
-    os::unix::process,
+    process,
     sync::atomic::{self, AtomicU64},
 };
 
@@ -9,6 +8,65 @@ pub struct Task {
     task: String,
     done_status: bool,
     id: u64,
+}
+
+impl Task {
+    fn update_status(&mut self) {
+        self.done_status = true
+    }
+
+    fn update_task(&mut self, new_name: String) {
+        self.task = new_name;
+    }
+}
+
+static UNIQUE_ID: AtomicU64 = AtomicU64::new(1);
+fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str) {
+    let id_no = UNIQUE_ID.fetch_add(1, atomic::Ordering::SeqCst);
+
+    let task: Task = Task {
+        task: task_string.into(),
+        done_status: false,
+        id: id_no,
+    };
+
+    todo_list.push(task);
+
+    println!("{} added to the to do list: ", task_string)
+}
+
+fn display_todo(todo_list: &mut Vec<Task>) {
+    if todo_list.len() < 1 {
+        println!("empty todo list");
+        return;
+    }
+
+    for i in todo_list {
+        println!("id: {}, name: {}, done: {}", i.id, i.task, i.done_status);
+    }
+}
+
+fn remove_task(todo_list: &mut Vec<Task>, id_no: u64) {
+    todo_list.retain(|task| task.id != id_no);
+}
+
+fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str> {
+    for t in todo_list {
+        if t.id == task_id {
+            return Ok(t);
+        } else {
+            continue;
+        }
+    }
+    return Err("Task not found in the todolist");
+}
+
+fn display_help() {
+    let help: &str = "
+        to add help here
+    ";
+
+    println!("{}", help)
 }
 
 fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>) {
@@ -78,20 +136,15 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>) {
         "help" => {
             display_help();
         }
+
+        _ => {
+            println!("Unknown command. Use 'help' to see available commands.");
+            display_help();
+        }
     }
 }
 
-static UNIQUE_ID: AtomicU64 = AtomicU64::new(1);
-fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str) {
-    let id_no = UNIQUE_ID.fetch_add(1, atomic::Ordering::SeqCst);
 
-    let task: Task = Task {
-        task: task_string.into(),
-        done_status: false,
-        id: id_no,
-    };
-
-    todo_list.push(task);
-
-    println!("{} added to the to do list: ", task_string)
+pub fn run(args: Vec<&str>, todo: &mut Vec<Task>){
+    parse_arguments(args, todo);
 }
